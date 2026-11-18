@@ -140,3 +140,19 @@ function most_significant_zero(x) =
 val most_significant_one : forall 'n, 'n >= 0. (bits('n)) -> option(range(0, 'n - 1))
 function most_significant_one(x) =
   highest_index_of(x, 0b1)
+
+// Pure common rounding rule. Bank-specific wrappers supply their private xrm.
+val algebra_rounding_incr : forall 'm 'n, 'm > 0 & 'n >= 0.
+  (bits('m), int('n), bits(2)) -> bits(1)
+function algebra_rounding_incr(value, shift, mode) = {
+  if shift == 0 then 0b0 else {
+    assert(shift < sizeof('m));
+    match mode {
+      0b00 => value[shift - 1],
+      0b01 => bool_to_bit(value[shift - 1] == 0b1 &
+        ((if shift == 1 then false else value[shift - 2 .. 0] != zeros()) | value[shift] == 0b1)),
+      0b10 => 0b0,
+      0b11 => bool_to_bit(value[shift] == 0b0 & value[shift - 1 .. 0] != zeros()),
+    }
+  }
+}

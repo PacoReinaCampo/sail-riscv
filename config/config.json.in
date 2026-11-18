@@ -10,6 +10,7 @@
 // Sail compiler as a build artifact.  See the documentation (e.g. the
 // top-level README) on how to get the associated schema.
 {
+  "algebra": { "memory_bank": "AlgebraMemory_V", "trace_writes": false, "agnostic_ones": false },
   "base": {
     "xlen": @CONFIG__BASE__XLEN@,
     // Whether the base ISA is E, in which case accessing
@@ -682,6 +683,35 @@
       // marked as supported based on Zca, Zcf, and Zcd
       "mutable_misa": true
     },
+    "Zwbc": { "supported": false },
+    "Zybc": { "supported": false },
+    "W": {
+      "supported": false,
+      "wlen_exp": 8,
+      "elen_exp": 6,
+      "columns": 4,
+      "reserved_behavior": {
+        "illegal_vtype": "IllegalVtype_SetVill",
+        "vstart_out_of_bounds": "Vstart_Illegal"
+      },
+      "wl_use_ceil": false,
+      "max_index_eew_exp": 6,
+      "wstart": { "zero_required": { "arith": false, "scalar_move": false } }
+    },
+    "Y": {
+      "supported": false,
+      "ylen_exp": 8,
+      "elen_exp": 6,
+      "columns": 4,
+      "depth": 2,
+      "reserved_behavior": {
+        "illegal_vtype": "IllegalVtype_SetVill",
+        "vstart_out_of_bounds": "Vstart_Illegal"
+      },
+      "yl_use_ceil": false,
+      "max_index_eew_exp": 6,
+      "ystart": { "zero_required": { "arith": false, "scalar_move": false } }
+    },
     "V": {
       // `support_level` must be one of the below strings:
       // . "Disabled" for no vector extension support
@@ -1335,19 +1365,7 @@
       "mcid_length": 12
     },
     "Svpbmt": {
-      "supported": @CONFIG_XLEN_IS_64@,
-      // Optional PMA overrides can be specified for `PBMT=NC` in
-      // `nc_overrides` and `PBMT=IO` in `io_overrides`.  If an
-      // override is used, all PMA fields under the `attributes` of a
-      // memory region (in `memory.regions`) must be specified in
-      // these overrides except `mem_type`, `cacheable`, and
-      // `{read,write}_idempotent`.
-      "nc_overrides": {
-        "None": null
-      },
-      "io_overrides": {
-        "None": null
-      }
+      "supported": @CONFIG_XLEN_IS_64@
     },
     "Svvptc": {
       "supported": true

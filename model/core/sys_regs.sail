@@ -150,6 +150,8 @@ private function legalize_misa(m : Misa, v : xlenbits) -> Misa = {
   then m
   else [m with
     A, B, C, D, F, H, M, S, U, V,
+    W = bool_to_bit(hartSupports(Ext_W)),
+    Y = bool_to_bit(hartSupports(Ext_Y)),
     // Writable I is not currently supported.
     I = bool_to_bit(not(base_E_enabled)),
     E = bool_to_bit(base_E_enabled),

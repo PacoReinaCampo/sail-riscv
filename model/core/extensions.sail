@@ -57,6 +57,21 @@ function clause hartSupports(Ext_B) = config extensions.B.supported
 enum clause extension = Ext_V
 mapping clause extensionName = Ext_V <-> "v"
 function clause hartSupports(Ext_V) = sizeof(vlen_exp) >= 7 & vector_support_level >= Full
+enum clause extension = Ext_Zwbc
+mapping clause extensionName = Ext_Zwbc <-> "zwbc"
+function clause hartSupports(Ext_Zwbc) = config extensions.Zwbc.supported
+
+enum clause extension = Ext_Zybc
+mapping clause extensionName = Ext_Zybc <-> "zybc"
+function clause hartSupports(Ext_Zybc) = config extensions.Zybc.supported
+
+// Independent experimental matrix and tensor operations.
+enum clause extension = Ext_W
+mapping clause extensionName = Ext_W <-> "w"
+function clause hartSupports(Ext_W) = config extensions.W.supported
+enum clause extension = Ext_Y
+mapping clause extensionName = Ext_Y <-> "y"
+function clause hartSupports(Ext_Y) = config extensions.Y.supported
 // Supervisor
 enum clause extension = Ext_S
 mapping clause extensionName = Ext_S <-> "s"
@@ -792,6 +807,8 @@ function currentlyEnabled_measure(ext : extension) -> int =
     Ext_Zcd => 3, // > D
     Ext_Zfhmin => 3, // > Zfh
     Ext_Zicfilp => 3, // > get_xLPE
+    Ext_Zwbc => 3, // > W
+    Ext_Zybc => 3, // > Y
     Ext_Zvbc => 3, // > Zve64x
     Ext_Zve64f => 3, // > Zve64x
     Ext_Zvfbfmin => 3, // > Zve32f
@@ -841,6 +858,8 @@ let extensions_ordered_for_isa_string = [
   Ext_B,
   // Ext_P,
   Ext_V,
+  Ext_W,
+  Ext_Y,
   Ext_H,
   // S and U are not valid extensions in the device-tree, whereas H is.
 
@@ -922,6 +941,8 @@ let extensions_ordered_for_isa_string = [
   // Zvb
   Ext_Zvbb,
   Ext_Zvbc,
+  Ext_Zwbc,
+  Ext_Zybc,
 
   // Zve
   Ext_Zve32f,

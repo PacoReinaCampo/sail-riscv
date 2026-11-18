@@ -1,4 +1,7 @@
-if (NOT DOWNLOAD_CPP_DEPENDENCIES)
+# Allow downloads to be turned off (in particular, for targets that don't need it).
+option(DOWNLOAD_JSONCONS "Download jsoncons" ON)
+
+if (NOT DOWNLOAD_JSONCONS)
   return()
 endif()
 

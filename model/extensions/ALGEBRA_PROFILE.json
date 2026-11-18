@@ -1,0 +1,77 @@
+{
+  "id": "experimental-vwy-coexistence",
+  "version": 1,
+  "normative": false,
+  "banks": {
+    "V": {
+      "opcode": 87,
+      "controls": [
+        8,
+        9,
+        10,
+        15
+      ],
+      "readonly": [
+        3104,
+        3105,
+        3106
+      ],
+      "minimum_privilege": "U",
+      "controls_access": "RW",
+      "readonly_access": "RO"
+    },
+    "W": {
+      "opcode": 11,
+      "controls": [
+        2048,
+        2049,
+        2050,
+        2051
+      ],
+      "readonly": [
+        3264,
+        3265,
+        3266
+      ],
+      "minimum_privilege": "U",
+      "controls_access": "RW",
+      "readonly_access": "RO"
+    },
+    "Y": {
+      "opcode": 43,
+      "controls": [
+        2052,
+        2053,
+        2054,
+        2055
+      ],
+      "readonly": [
+        3268,
+        3269,
+        3270
+      ],
+      "minimum_privilege": "U",
+      "controls_access": "RW",
+      "readonly_access": "RO"
+    }
+  },
+  "memory": {
+    "opcodes": [
+      7,
+      39
+    ],
+    "selector": "algebra.memory_bank",
+    "mutable_during_execution": false
+  },
+  "context": {
+    "ownership": "software",
+    "virtualized_context_isolation": false,
+    "dirty_tracking": "internal_boolean",
+    "reset": "controls reset; data registers unspecified unless explicitly initialized",
+    "mstatus_VS_shared": false
+  },
+  "deviations": [
+    "W/Y CSR addresses differ from GreenCard register tables",
+    "memory selector is an integration parameter"
+  ]
+}

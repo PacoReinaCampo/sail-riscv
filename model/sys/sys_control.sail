@@ -512,6 +512,8 @@ function reset_misa() -> unit = {
   misa[U]   = bool_to_bit(hartSupports(Ext_U));   // user-mode
   misa[S]   = bool_to_bit(hartSupports(Ext_S));   // supervisor-mode
   misa[V]   = bool_to_bit(hartSupports(Ext_V));   // vector extension
+  misa[W]   = bool_to_bit(hartSupports(Ext_W));   // matrix extension
+  misa[Y]   = bool_to_bit(hartSupports(Ext_Y));   // tensor extension
 
   // Base integer ISA (disabled if we only support the 16-register E base).
   misa[E] = bool_to_bit(base_E_enabled);

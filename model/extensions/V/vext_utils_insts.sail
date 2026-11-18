@@ -426,21 +426,21 @@ function init_masked_result(num_elem, _EEW, LMUL_pow, vd_val, vm_val) = {
       // Tail elements defined by vl
       result[i] = match tail_ag {
         UNDISTURBED => vd_val[i],
-        AGNOSTIC    => vd_val[i] // TODO: configuration support
+        AGNOSTIC    => if algebra_agnostic_ones then ones() else vd_val[i] // TODO: configuration support
       };
       mask[i] = 0b0
     } else if i >= real_num_elem then {
       // Tail elements defined by lmul < 1
       result[i] = match tail_ag {
         UNDISTURBED => vd_val[i],
-        AGNOSTIC    => vd_val[i] // TODO: configuration support
+        AGNOSTIC    => if algebra_agnostic_ones then ones() else vd_val[i] // TODO: configuration support
       };
       mask[i] = 0b0
     } else if vm_val[i] == 0b0 then {
       // Inactive body elements defined by vm
       result[i] = match mask_ag {
         UNDISTURBED => vd_val[i],
-        AGNOSTIC    => vd_val[i] // TODO: configuration support
+        AGNOSTIC    => if algebra_agnostic_ones then ones() else vd_val[i] // TODO: configuration support
       };
       mask[i] = 0b0
     } else {
@@ -557,7 +557,7 @@ function init_masked_result_cmp(num_elem, _EEW, LMUL_pow, vd_val, vm_val) = {
       // Inactive body elements defined by vm
       result[i] = match mask_ag {
         UNDISTURBED => vd_val[i],
-        AGNOSTIC    => vd_val[i] // TODO: configuration support
+        AGNOSTIC    => if algebra_agnostic_ones then ones() else vd_val[i] // TODO: configuration support
       };
       mask[i] = 0b0
     } else {
@@ -605,23 +605,7 @@ function get_shift_amount(bit_val, SEW) = {
 // Fixed point rounding increment
 val get_fixed_rounding_incr : forall ('m 'n : Int), ('m > 0 & 'n >= 0). (bits('m), int('n)) -> bits(1)
 function get_fixed_rounding_incr(vec_elem, shift_amount) = {
-  if shift_amount == 0 then 0b0
-  else {
-    let rounding_mode = vcsr[vxrm];
-    // TODO: Change the type signature to enforce this assertion.
-    assert(shift_amount < 'm);
-    match rounding_mode {
-      0b00 => vec_elem[shift_amount - 1],
-      0b01 => {
-        bool_to_bit(
-          vec_elem[shift_amount - 1] == 0b1 &
-          ((if shift_amount == 1 then false else vec_elem[shift_amount - 2 .. 0] != zeros()) | vec_elem[shift_amount] == 0b1))
-      },
-      0b10 => 0b0,
-      0b11 => bool_to_bit(
-        vec_elem[shift_amount] != 0b1 & vec_elem[shift_amount - 1 .. 0] != zeros())
-    }
-  }
+  algebra_rounding_incr(vec_elem, shift_amount, vcsr[vxrm])
 }
 
 // Fixed point unsigned saturation

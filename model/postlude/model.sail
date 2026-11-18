@@ -13,6 +13,8 @@ function reset() -> unit = {
 
   reset_sys();
   reset_vmem();
+  w_reset();
+  y_reset();
 
   reset_elp(); // initialize Zicfilp expected landing pad
 

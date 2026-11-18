@@ -32,8 +32,7 @@ private function rvfi_fetch() -> FetchResult = {
 
   let i = rvfi_instruction[rvfi_insn];
   rvfi_inst_data[rvfi_insn]   = zero_extend(i);
-  // See `isRVC` in fetch.sail: without Zca these encodings are 32 bits long.
-  if   i[1 .. 0] != 0b11 & currentlyEnabled(Ext_Zca)
+  if   (i[1 .. 0] != 0b11)
   then return F_RVC(i[15 .. 0]);
 
   // fetch PC check for the next instruction granule

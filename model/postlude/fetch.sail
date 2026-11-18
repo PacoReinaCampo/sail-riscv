@@ -9,11 +9,7 @@
 // Current fetch hooks for RISC-V extensions call extensions
 // to check PC validity *before* standard fetch processing checks.
 
-// Encodings whose low two bits are not 0b11 are 16-bit compressed instructions
-// only when Zca is enabled. Without Zca, IALIGN is 32 and every instruction
-// length must be a multiple of IALIGN, so these encodings are 32-bit (illegal)
-// instructions, and all 32 bits are reported in xtval.
-private function isRVC(h : half) -> bool = not(h[1 .. 0] == 0b11) & currentlyEnabled(Ext_Zca)
+private function isRVC(h : half) -> bool = not(h[1 .. 0] == 0b11)
 
 // This instruction byte fetcher is used for partial fetches, and
 // hence doesn't return the FetchResult type that a full fetcher does.

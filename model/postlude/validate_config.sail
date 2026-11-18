@@ -1352,8 +1352,54 @@ function validate_event_selectors() = true
 private function check_platform_constraints() -> bool =
   validate_event_selectors()
 
+private function check_algebra_config() -> bool = {
+  // Rectangular instruction views must fit within the maximum element group.
+  if w_columns > wlen | y_columns * y_depth > ylen then {
+    print_endline("W/Y view extents exceed the bank's maximum element capacity.");
+    return false;
+  };
+  // Match the core's numeric constraints, retaining the runtime checks as
+  // check_vlen_elen does for V (see its note about the nat annotations).
+  if (wlen_exp : nat) < 3 | (wlen_exp : nat) > 16 |
+     (ylen_exp : nat) < 3 | (ylen_exp : nat) > 16 |
+     (welen_exp : nat) < 3 | (welen_exp : nat) > 6 |
+     (yelen_exp : nat) < 3 | (yelen_exp : nat) > 6 |
+     (welen_exp : nat) > (wlen_exp : nat) |
+     (yelen_exp : nat) > (ylen_exp : nat) then {
+    print_endline("W/Y register lengths and element widths violate their bounds.");
+    return false;
+  };
+  if (w_columns : nat) < 1 | (w_columns : nat) > 65536 |
+     (y_columns : nat) < 1 | (y_columns : nat) > 65536 |
+     (y_depth : nat) < 1 | (y_depth : nat) > 65536 then {
+    print_endline("W/Y view extents must be between 1 and 65536.");
+    return false;
+  };
+  if algebra_memory_bank == AlgebraMemory_W & not(hartSupports(Ext_W)) then {
+    print_endline("algebra.memory_bank selects W, but W is disabled.");
+    return false;
+  };
+  if algebra_memory_bank == AlgebraMemory_Y & not(hartSupports(Ext_Y)) then {
+    print_endline("algebra.memory_bank selects Y, but Y is disabled.");
+    return false;
+  };
+  if w_max_index_eew_exp < 3 | w_max_index_eew_exp > welen_exp |
+     y_max_index_eew_exp < 3 | y_max_index_eew_exp > yelen_exp then {
+    print_endline("W/Y max_index_eew_exp must be between 3 and the bank's elen_exp.");
+    return false;
+  };
+  if (hartSupports(Ext_Zwbc) & (not(hartSupports(Ext_W)) | welen < 64)) |
+     (hartSupports(Ext_Zybc) & (not(hartSupports(Ext_Y)) | yelen < 64)) then {
+    print_endline("Zwbc/Zybc require their bank and ELEN >= 64.");
+    return false;
+  };
+
+  true
+}
+
 function config_is_valid() -> bool = {
-    check_privs()
+    check_algebra_config()
+  & check_privs()
   & check_tvecs()
   & check_mutable_misa()
   & check_mstatus_fields()

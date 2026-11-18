@@ -25,7 +25,11 @@ bool config_use_abi_names = false;
 
 FILE *trace_log = stdout;
 
-int main() {
-  sail_config_set_string(get_default_config());
+int main(int argc, char **argv) {
+  if (argc > 1) {
+    sail_config_set_file(argv[1]);
+  } else {
+    sail_config_set_string(get_default_config());
+  }
   model_test();
 }

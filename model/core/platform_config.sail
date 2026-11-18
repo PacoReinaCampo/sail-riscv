@@ -302,6 +302,11 @@ enum RV32ZdinxOddRegisterReservedBehavior = {
   Zdinx_Illegal,
 }
 
+// The three algebra banks share memory encodings in the supplied tables.
+// Choose one decode domain explicitly; arithmetic always uses distinct opcodes.
+enum AlgebraMemoryBank = { AlgebraMemory_V, AlgebraMemory_W, AlgebraMemory_Y }
+let algebra_memory_bank : AlgebraMemoryBank = config algebra.memory_bank
+
 enum IllegalVtypeReservedBehavior = {
   IllegalVtype_SetVill,
   IllegalVtype_Illegal,
@@ -333,3 +338,6 @@ enum FflagsDirtyPolicy = {
 }
 
 let fflags_dirty_policy : FflagsDirtyPolicy = config extensions.F.fflags_dirty_policy
+
+let algebra_trace_writes : bool = config algebra.trace_writes
+let algebra_agnostic_ones : bool = config algebra.agnostic_ones

@@ -47,8 +47,8 @@ union clause instruction = VLSEGTYPE : (nfields, bits(1), regidx, vlewidth, vreg
 
 mapping clause encdec = VLSEGTYPE(nf, vm, rs1, width, vd)
   <-> encdec_nfields(nf) @ 0b0 @ 0b00 @ vm @ 0b00000 @ encdec_reg(rs1) @ encdec_vlewidth(width) @ encdec_vreg(vd) @ 0b0000111
-  when (currentlyEnabled(Ext_Zve32x) & vlewidth_pow(width) <= 5)
-     | (currentlyEnabled(Ext_Zve64x) & vlewidth_pow(width) <= 6)
+  when ((currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 5)
+     | ((currentlyEnabled(Ext_Zve64x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 6)
 
 function clause execute VLSEGTYPE(nf, vm, rs1, width, vd) = {
   let EEW_pow = vlewidth_pow(width);
@@ -104,8 +104,8 @@ union clause instruction = VLSEGFFTYPE : (nfields, bits(1), regidx, vlewidth, vr
 
 mapping clause encdec = VLSEGFFTYPE(nf, vm, rs1, width, vd)
   <-> encdec_nfields(nf) @ 0b0 @ 0b00 @ vm @ 0b10000 @ encdec_reg(rs1) @ encdec_vlewidth(width) @ encdec_vreg(vd) @ 0b0000111
-  when (currentlyEnabled(Ext_Zve32x) & vlewidth_pow(width) <= 5)
-     | (currentlyEnabled(Ext_Zve64x) & vlewidth_pow(width) <= 6)
+  when ((currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 5)
+     | ((currentlyEnabled(Ext_Zve64x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 6)
 
 function clause execute VLSEGFFTYPE(nf, vm, rs1, width, vd) = {
   let EEW_pow = vlewidth_pow(width);
@@ -187,8 +187,8 @@ union clause instruction = VSSEGTYPE : (nfields, bits(1), regidx, vlewidth, vreg
 
 mapping clause encdec = VSSEGTYPE(nf, vm, rs1, width, vs3)
   <-> encdec_nfields(nf) @ 0b0 @ 0b00 @ vm @ 0b00000 @ encdec_reg(rs1) @ encdec_vlewidth(width) @ encdec_vreg(vs3) @ 0b0100111
-  when (currentlyEnabled(Ext_Zve32x) & vlewidth_pow(width) <= 5)
-     | (currentlyEnabled(Ext_Zve64x) & vlewidth_pow(width) <= 6)
+  when ((currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 5)
+     | ((currentlyEnabled(Ext_Zve64x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 6)
 
 function clause execute VSSEGTYPE(nf, vm, rs1, width, vs3) = {
   let EEW_pow = vlewidth_pow(width);
@@ -244,8 +244,8 @@ union clause instruction = VLSSEGTYPE : (nfields, bits(1), regidx, regidx, vlewi
 
 mapping clause encdec = VLSSEGTYPE(nf, vm, rs2, rs1, width, vd)
   <-> encdec_nfields(nf) @ 0b0 @ 0b10 @ vm @ encdec_reg(rs2) @ encdec_reg(rs1) @ encdec_vlewidth(width) @ encdec_vreg(vd) @ 0b0000111
-  when (currentlyEnabled(Ext_Zve32x) & vlewidth_pow(width) <= 5)
-     | (currentlyEnabled(Ext_Zve64x) & vlewidth_pow(width) <= 6)
+  when ((currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 5)
+     | ((currentlyEnabled(Ext_Zve64x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 6)
 
 function clause execute VLSSEGTYPE(nf, vm, rs2, rs1, width, vd) = {
   let EEW_pow = vlewidth_pow(width);
@@ -302,8 +302,8 @@ union clause instruction = VSSSEGTYPE : (nfields, bits(1), regidx, regidx, vlewi
 
 mapping clause encdec = VSSSEGTYPE(nf, vm, rs2, rs1, width, vs3)
   <-> encdec_nfields(nf) @ 0b0 @ 0b10 @ vm @ encdec_reg(rs2) @ encdec_reg(rs1) @ encdec_vlewidth(width) @ encdec_vreg(vs3) @ 0b0100111
-  when (currentlyEnabled(Ext_Zve32x) & vlewidth_pow(width) <= 5)
-     | (currentlyEnabled(Ext_Zve64x) & vlewidth_pow(width) <= 6)
+  when ((currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 5)
+     | ((currentlyEnabled(Ext_Zve64x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 6)
 
 function clause execute VSSSEGTYPE(nf, vm, rs2, rs1, width, vs3) = {
   let EEW_pow = vlewidth_pow(width);
@@ -361,7 +361,7 @@ union clause instruction = VLXSEGTYPE : (nfields, bits(1), vregidx, regidx, vlew
 
 mapping clause encdec = VLXSEGTYPE(nf, vm, vs2, rs1, width, vd, mop)
   <-> encdec_nfields(nf) @ 0b0 @ encdec_indexed_mop(mop) @ vm @ encdec_vreg(vs2) @ encdec_reg(rs1) @ encdec_vlewidth(width) @ encdec_vreg(vd) @ 0b0000111
-   when currentlyEnabled(Ext_Zve32x) & vlewidth_pow(width) <= max_index_eew_exp
+   when (currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= max_index_eew_exp
 
 // `mop` selects between the ordered and unordered variants of these instructions.  This function currently
 // only implements the ordered variant, hence `mop` is ignored.
@@ -429,7 +429,7 @@ union clause instruction = VSXSEGTYPE : (nfields, bits(1), vregidx, regidx, vlew
 
 mapping clause encdec = VSXSEGTYPE(nf, vm, vs2, rs1, width, vs3, mop)
   <-> encdec_nfields(nf) @ 0b0 @ encdec_indexed_mop(mop) @ vm @ encdec_vreg(vs2) @ encdec_reg(rs1) @ encdec_vlewidth(width) @ encdec_vreg(vs3) @ 0b0100111
-  when (currentlyEnabled(Ext_Zve32x) & vlewidth_pow(width) <= max_index_eew_exp)
+  when ((currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= max_index_eew_exp)
 
 // `mop` selects between the ordered and unordered variants of these instructions.  This function currently
 // only implements the ordered variant, hence `mop` is ignored.
@@ -490,8 +490,8 @@ union clause instruction = VLRETYPE : (nfields_pow2, regidx, vlewidth, vregidx)
 
 mapping clause encdec = VLRETYPE(nf, rs1, width, vd)
   <-> encdec_nfields_pow2(nf) @ 0b0 @ 0b00 @ 0b1 @ 0b01000 @ encdec_reg(rs1) @ encdec_vlewidth(width) @ encdec_vreg(vd) @ 0b0000111
-  when (currentlyEnabled(Ext_Zve32x) & vlewidth_pow(width) <= 5)
-     | (currentlyEnabled(Ext_Zve64x) & vlewidth_pow(width) <= 6)
+  when ((currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 5)
+     | ((currentlyEnabled(Ext_Zve64x) & algebra_memory_bank == AlgebraMemory_V) & vlewidth_pow(width) <= 6)
 
 function clause execute VLRETYPE(nf, rs1, width, vd) = {
   let EEW_pow = vlewidth_pow(width);
@@ -548,7 +548,7 @@ union clause instruction = VSRETYPE : (nfields_pow2, regidx, vregidx)
 
 mapping clause encdec = VSRETYPE(nf, rs1, vs3)
   <-> encdec_nfields_pow2(nf) @ 0b0 @ 0b00 @ 0b1 @ 0b01000 @ encdec_reg(rs1) @ 0b000 @ encdec_vreg(vs3) @ 0b0100111
-  when currentlyEnabled(Ext_Zve32x)
+  when (currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V)
 
 function clause execute VSRETYPE(nf, rs1, vs3) = {
   let load_width_bytes = 1;
@@ -614,7 +614,7 @@ mapping encdec_lsop : vmlsop <-> bits(7) = {
 
 mapping clause encdec = VMTYPE(rs1, vd_or_vs3, op)
   <-> 0b000 @ 0b0 @ 0b00 @ 0b1 @ 0b01011 @ encdec_reg(rs1) @ 0b000 @ encdec_vreg(vd_or_vs3) @ encdec_lsop(op)
-  when currentlyEnabled(Ext_Zve32x)
+  when (currentlyEnabled(Ext_Zve32x) & algebra_memory_bank == AlgebraMemory_V)
 
 function clause execute VMTYPE(rs1, vd_or_vs3, op) = {
   let EEW = 8;

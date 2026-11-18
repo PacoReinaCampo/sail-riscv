@@ -46,3 +46,29 @@ type velemidx = range(0, vlen - 1)
 
 let vlen = sizeof(vlen)
 let elen = sizeof(elen)
+
+// Independent storage size and maximum scalar element width.
+type wlen_exp : Int = config extensions.W.wlen_exp
+constraint 3 <= wlen_exp <= 16
+type welen_exp : Int = config extensions.W.elen_exp
+constraint 3 <= welen_exp <= 6 & welen_exp <= wlen_exp
+let wlen_exp = sizeof(wlen_exp)
+let welen_exp = sizeof(welen_exp)
+type wlen : Int = 2 ^ wlen_exp
+type welen : Int = 2 ^ welen_exp
+type welemidx = range(0, wlen - 1)
+let wlen = sizeof(wlen)
+let welen = sizeof(welen)
+
+// Independent storage size and maximum scalar element width.
+type ylen_exp : Int = config extensions.Y.ylen_exp
+constraint 3 <= ylen_exp <= 16
+type yelen_exp : Int = config extensions.Y.elen_exp
+constraint 3 <= yelen_exp <= 6 & yelen_exp <= ylen_exp
+let ylen_exp = sizeof(ylen_exp)
+let yelen_exp = sizeof(yelen_exp)
+type ylen : Int = 2 ^ ylen_exp
+type yelen : Int = 2 ^ yelen_exp
+type yelemidx = range(0, ylen - 1)
+let ylen = sizeof(ylen)
+let yelen = sizeof(yelen)
