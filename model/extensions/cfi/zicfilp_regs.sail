@@ -59,6 +59,9 @@ function update_elp_state(rs1 : regidx) -> unit =
 function is_landing_pad_expected() -> bool =
   elp == landing_pad_bits(LP_EXPECTED)
 
+function rv_x_restore_rnmi_elp(p : Privilege, saved : bool) -> unit =
+  elp = bool_to_bit(saved & get_xLPE(p))
+
 function reset_elp() -> unit =
   elp = landing_pad_bits(NO_LP_EXPECTED)
 

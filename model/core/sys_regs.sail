@@ -12,6 +12,9 @@
 
 register cur_privilege : Privilege
 
+// Invalidates native-user grants when the hart enters a trap or changes SATP.
+register native_user_context_generation : int = 0
+
 // current instruction bits, used for illegal instruction exceptions
 
 register cur_inst : xlenbits

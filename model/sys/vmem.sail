@@ -298,7 +298,11 @@ function clause read_CSR(0x180) = if inVirtualPrivilege() then vsatp else satp
 function clause write_CSR(0x180, value) =
   if inVirtualPrivilege()
   then { vsatp = legalize_satp(architecture(cur_privilege), true,  vsatp, value); Ok(vsatp) }
-  else { satp  = legalize_satp(architecture(Supervisor),    false, satp,  value); Ok(satp)  }
+  else {
+    native_user_context_generation = native_user_context_generation + 1;
+    satp = legalize_satp(architecture(Supervisor), false, satp, value);
+    Ok(satp)
+  }
 
 // ----------------
 // Fields of SATP

@@ -104,6 +104,9 @@ add_custom_command(
         --c-include riscv_softfloat.h
         # Don't dead-code eliminate these functions.
         --c-preserve init_model
+        --c-preserve rv_u_bind_context
+        --c-preserve rv_u_install_return_frame
+        --c-preserve rv_x_save_rnmi_frame
         --c-preserve init_boot_requirements
         --c-preserve try_step
         --c-preserve tick_clock

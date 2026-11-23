@@ -84,6 +84,50 @@ function clause hartSupports(Ext_U) = config extensions.U.supported
 enum clause extension = Ext_H
 mapping clause extensionName = Ext_H <-> "h"
 function clause hartSupports(Ext_H) = config extensions.H.supported
+enum clause extension = Ext_N
+mapping clause extensionName = Ext_N <-> "rvn"
+function clause hartSupports(Ext_N) = (config extensions.N.supported : bool) & hartSupports(Ext_U)
+
+enum clause extension = Ext_T
+mapping clause extensionName = Ext_T <-> "rvt"
+function clause hartSupports(Ext_T) = config extensions.T.supported
+
+enum clause extension = Ext_RvU
+mapping clause extensionName = Ext_RvU <-> "rvu"
+function clause hartSupports(Ext_RvU) = (config extensions.RvU.supported : bool) & hartSupports(Ext_U) & hartSupports(Ext_S)
+
+enum clause extension = Ext_RvUsctr
+mapping clause extensionName = Ext_RvUsctr <-> "rvusctr"
+function clause hartSupports(Ext_RvUsctr) = (config extensions.RvUsctr.supported : bool) & hartSupports(Ext_RvU)
+
+enum clause extension = Ext_RvUvinval
+mapping clause extensionName = Ext_RvUvinval <-> "rvuvinval"
+function clause hartSupports(Ext_RvUvinval) = (config extensions.RvUvinval.supported : bool) & hartSupports(Ext_RvU)
+
+enum clause extension = Ext_RvX
+mapping clause extensionName = Ext_RvX <-> "rvx"
+function clause hartSupports(Ext_RvX) = config extensions.RvX.supported
+
+enum clause extension = Ext_RvXsctr
+mapping clause extensionName = Ext_RvXsctr <-> "rvxsctr"
+function clause hartSupports(Ext_RvXsctr) = (config extensions.RvXsctr.supported : bool) & hartSupports(Ext_RvX)
+
+enum clause extension = Ext_RvXvinval
+mapping clause extensionName = Ext_RvXvinval <-> "rvxvinval"
+function clause hartSupports(Ext_RvXvinval) = (config extensions.RvXvinval.supported : bool) & hartSupports(Ext_RvX)
+
+enum clause extension = Ext_RvXrnmi
+mapping clause extensionName = Ext_RvXrnmi <-> "rvxrnmi"
+function clause hartSupports(Ext_RvXrnmi) = (config extensions.RvXrnmi.supported : bool) & hartSupports(Ext_RvX)
+
+enum clause extension = Ext_RvXh
+mapping clause extensionName = Ext_RvXh <-> "rvxh"
+function clause hartSupports(Ext_RvXh) = (config extensions.RvXh.supported : bool) & hartSupports(Ext_RvX) & hartSupports(Ext_H)
+
+enum clause extension = Ext_RvXvinvalH
+mapping clause extensionName = Ext_RvXvinvalH <-> "rvxvinvalh"
+function clause hartSupports(Ext_RvXvinvalH) = (config extensions.RvXvinvalH.supported : bool) & hartSupports(Ext_RvXh) & hartSupports(Ext_RvXvinval)
+
 // Augmented Hypervisor
 enum clause extension = Ext_Sha
 mapping clause extensionName = Ext_Sha <-> "sha"

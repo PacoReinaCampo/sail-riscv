@@ -791,6 +791,39 @@
       "supported": true,
       "mutable_misa": true
     },
+    "N": {
+      "supported": false
+    },
+    "T": {
+      "supported": false
+    },
+    "RvU": {
+      "supported": false
+    },
+    "RvUsctr": {
+      "supported": false
+    },
+    "RvUvinval": {
+      "supported": false
+    },
+    "RvX": {
+      "supported": false
+    },
+    "RvXsctr": {
+      "supported": false
+    },
+    "RvXvinval": {
+      "supported": false
+    },
+    "RvXrnmi": {
+      "supported": false
+    },
+    "RvXh": {
+      "supported": false
+    },
+    "RvXvinvalH": {
+      "supported": false
+    },
     "H": {
       "supported": true,
       "mutable_misa": true,

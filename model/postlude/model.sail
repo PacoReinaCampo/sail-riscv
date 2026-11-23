@@ -12,6 +12,10 @@ function reset() -> unit = {
   hart_state = HART_ACTIVE();
 
   reset_sys();
+  reset_rv_n();
+  rv_t_discard();
+  reset_rv_u();
+  reset_rv_x();
   reset_vmem();
   w_reset();
   y_reset();

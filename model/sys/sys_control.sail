@@ -449,6 +449,9 @@ function double_trap_cause(c : TrapCause) -> TrapCause = {
 // Handle exceptional ctl flow by updating nextPC and operating privilege,
 // checking for a double trap first.
 function trap_handler(del_priv : Privilege, c : TrapCause, pc : xlenbits) -> xlenbits = {
+  if cur_privilege == User & hartSupports(Ext_RvU) then {
+    native_user_context_generation = native_user_context_generation + 1;
+  };
   // This must come before trap_handler_inner, because an unexpected trap in
   // M-mode updates no architectural state at all.
   match del_priv {

@@ -613,7 +613,7 @@ union clause instruction = MRET : unit
 mapping clause encdec = MRET()
   <-> 0b0011000 @ 0b00010 @ 0b00000 @ 0b000 @ 0b00000 @ 0b1110011
 
-function clause execute MRET() = {
+function execute_mret(clear_mprv : bool) -> ExecutionResult = {
   if   cur_privilege != Machine
   then Illegal_Instruction()
   else if not(ext_check_xret_priv(Machine))
@@ -629,7 +629,7 @@ function clause execute MRET() = {
     mstatus[MPP]  = privLevel_to_bits(if currentlyEnabled(Ext_U) then User else Machine);
     mstatus[MPV]  = 0b0;
 
-    if   cur_privilege != Machine & xret_clears_mstatus_mprv
+    if   cur_privilege != Machine & clear_mprv
     then mstatus[MPRV] = 0b0;
 
     xret_clear_dbltrp(prev_priv, cur_privilege);
@@ -654,6 +654,8 @@ function clause execute MRET() = {
     RETIRE_SUCCESS
   }
 }
+
+function clause execute MRET() = execute_mret(xret_clears_mstatus_mprv)
 
 mapping clause assembly = MRET() <-> "mret"
 

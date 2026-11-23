@@ -177,7 +177,7 @@ private function run_hart_active(step_no: nat) -> Step = {
       // check for RVC once here instead of every RVC execute clause.
       else if currentlyEnabled(Ext_Zca) then {
         nextPC = PC + 2;
-        let (executed_instruction, result) : (option(instruction), ExecutionResult) = match execute(fetched_instruction) {
+        let (executed_instruction, result) : (option(instruction), ExecutionResult) = match rv_t_execute(fetched_instruction) {
           ExecuteAs(other_inst) => (Some(other_inst), execute(other_inst)),
           result => (Some(fetched_instruction), result),
         };
@@ -214,7 +214,7 @@ private function run_hart_active(step_no: nat) -> Step = {
         Step_Execute(r, instr_info)
       } else {
         nextPC = PC + 4;
-        let (executed_instruction, result) : (option(instruction), ExecutionResult) = match execute(fetched_instruction) {
+        let (executed_instruction, result) : (option(instruction), ExecutionResult) = match rv_t_execute(fetched_instruction) {
           ExecuteAs(other_inst) => (Some(other_inst), execute(other_inst)),
           result => (Some(fetched_instruction), result),
         };
@@ -285,7 +285,11 @@ function try_step(step_no : nat, exit_wait : bool) -> bool = {
       HART_ACTIVE()                => run_hart_active(step_no),
     };
 
-  match step_val {
+  let abort_transaction = rv_t_active & (match step_val {
+    Step_Execute(Retire_Success(), _) => false,
+    _ => true,
+  });
+  if abort_transaction then rv_t_abort(rv_t_interrupted) else match step_val {
     Step_Pending_Trigger(pti) => {
       if get_config_print_trigger() then {
         let (_, idx, _, _) = pti;

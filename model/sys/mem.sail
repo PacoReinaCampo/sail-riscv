@@ -32,6 +32,15 @@
 // enabled) and a PMA check, and then dispatches to MMIO regions or physical
 // memory as per the platform memory map.
 
+private function rv_t_is_ram(paddr : physaddr, width : mem_access_width) -> bool =
+  match matching_pma_region(pma_regions, paddr, width) {
+    Some(region) => region.attributes.mem_type == MainMemory &
+                    region.attributes.readable & region.attributes.writable &
+                    region.attributes.read_idempotent & region.attributes.write_idempotent &
+                    not(within_mmio_readable(paddr, width) | within_mmio_writable(paddr, width)),
+    None() => false,
+  }
+
 private function read_kind_of_flags (aq : bool, rl : bool, res : bool) -> read_kind =
   match (aq, rl, res) {
     (false, false, false) => Read_plain,
@@ -275,6 +284,23 @@ private function checked_mem_read forall 'n, 0 < 'n <= max_mem_access . (
 
   let paddr_bits = bits_of(paddr);
 
+  if rv_t_active & access == Load(Data) then {
+    if N != 1 | aq | rl | res | meta | not(rv_t_is_ram(paddr, width))
+    then return Err(paddr, E_Load_Access_Fault());
+    match pmpCheck(paddr, width, access, priv) {
+      Some(e) => return Err(paddr, e),
+      None() => (),
+    };
+    var value : bits(8 * 'n) = zeros();
+    foreach (i from 0 to width - 1) {
+      match rv_t_touch_byte(paddr_bits + i, None()) {
+        None() => return Err(paddr, E_Load_Access_Fault()),
+        Some(byte_value) => value[8 * i + 7 .. 8 * i] = byte_value,
+      }
+    };
+    return Ok((value, default_meta));
+  };
+
   var data = zeros(8 * N * split_width);
   // TODO: handle folding of read metadata across all the splits.
 
@@ -435,6 +461,22 @@ function checked_mem_write forall 'n, 0 < 'n <= max_mem_access . (
   // TODO: handle any splits of metadata across the splits.
 
   let paddr_bits = bits_of(paddr);
+  if rv_t_active then {
+    if access != Store(Data) | N != 1 | aq | rl | con |
+       not(rv_t_is_ram(paddr, width)) then return Err(paddr, E_SAMO_Access_Fault());
+    match pmpCheck(paddr, width, access, priv) {
+      Some(e) => return Err(paddr, e),
+      None() => (),
+    };
+    foreach (i from 0 to width - 1) {
+      match rv_t_touch_byte(paddr_bits + i, Some(data[8 * i + 7 .. 8 * i])) {
+        None() => return Err(paddr, E_SAMO_Access_Fault()),
+        Some(_) => (),
+      }
+    };
+    return Ok(true);
+  };
+
   var write_success : bool = true;
 
   let (first, last, step) = misaligned_order(N);
@@ -490,7 +532,7 @@ val mem_write_value_priv_meta : forall 'n, 0 < 'n <= max_mem_access . (physaddr,
 function mem_write_value_priv_meta (paddr, width, value, access, pbmt, priv, meta, aq, rl, con) = {
   let result = checked_mem_write(paddr, width, value, access, pbmt, priv, meta, aq, rl, con);
   match result {
-    Ok(_) => mem_write_callback(to_str(access), bits_of(paddr), width, value),
+    Ok(_) => if not(rv_t_active) then mem_write_callback(to_str(access), bits_of(paddr), width, value),
     Err(addr, e) => mem_exception_callback(bits_of(addr), exceptionType_bits(e)),
   };
   result
