@@ -312,37 +312,37 @@ bitfield Ycsr : bits(3) = {
 }
 register ycsr : Ycsr
 
-mapping clause csr_name_map = 0x804  <-> "ystart"
-mapping clause csr_name_map = 0x805  <-> "yxsat"
-mapping clause csr_name_map = 0x806  <-> "yxrm"
-mapping clause csr_name_map = 0x807  <-> "ycsr"
-mapping clause csr_name_map = 0xCC4  <-> "yl"
-mapping clause csr_name_map = 0xCC5  <-> "ytype"
-mapping clause csr_name_map = 0xCC6  <-> "ylenb"
+mapping clause csr_name_map = 0x008 if algebra_memory_bank == AlgebraMemory_Y <-> "ystart"
+mapping clause csr_name_map = 0x009 if algebra_memory_bank == AlgebraMemory_Y <-> "yxsat"
+mapping clause csr_name_map = 0x00A if algebra_memory_bank == AlgebraMemory_Y <-> "yxrm"
+mapping clause csr_name_map = 0x00F if algebra_memory_bank == AlgebraMemory_Y <-> "ycsr"
+mapping clause csr_name_map = 0xC20 if algebra_memory_bank == AlgebraMemory_Y <-> "yl"
+mapping clause csr_name_map = 0xC21 if algebra_memory_bank == AlgebraMemory_Y <-> "ytype"
+mapping clause csr_name_map = 0xC22 if algebra_memory_bank == AlgebraMemory_Y <-> "ylenb"
 
-function clause is_CSR_accessible(0x804, _, _) = currentlyEnabled(Ext_Y) // ystart
-function clause is_CSR_accessible(0x805, _, _) = currentlyEnabled(Ext_Y) // yxsat
-function clause is_CSR_accessible(0x806, _, _) = currentlyEnabled(Ext_Y) // yxrm
-function clause is_CSR_accessible(0x807, _, _) = currentlyEnabled(Ext_Y) // ycsr
-function clause is_CSR_accessible(0xCC4, _, _) = currentlyEnabled(Ext_Y) // yl
-function clause is_CSR_accessible(0xCC5, _, _) = currentlyEnabled(Ext_Y) // ytype
-function clause is_CSR_accessible(0xCC6, _, _) = currentlyEnabled(Ext_Y) // ylenb
+function clause is_CSR_accessible((0x008, _, _) if algebra_memory_bank == AlgebraMemory_Y) = currentlyEnabled(Ext_Y) // ystart
+function clause is_CSR_accessible((0x009, _, _) if algebra_memory_bank == AlgebraMemory_Y) = currentlyEnabled(Ext_Y) // yxsat
+function clause is_CSR_accessible((0x00A, _, _) if algebra_memory_bank == AlgebraMemory_Y) = currentlyEnabled(Ext_Y) // yxrm
+function clause is_CSR_accessible((0x00F, _, _) if algebra_memory_bank == AlgebraMemory_Y) = currentlyEnabled(Ext_Y) // ycsr
+function clause is_CSR_accessible((0xC20, _, _) if algebra_memory_bank == AlgebraMemory_Y) = currentlyEnabled(Ext_Y) // yl
+function clause is_CSR_accessible((0xC21, _, _) if algebra_memory_bank == AlgebraMemory_Y) = currentlyEnabled(Ext_Y) // ytype
+function clause is_CSR_accessible((0xC22, _, _) if algebra_memory_bank == AlgebraMemory_Y) = currentlyEnabled(Ext_Y) // ylenb
 
-function clause is_CSR_exception_virtual(0x804, _, _) = false // ystart
-function clause is_CSR_exception_virtual(0x805, _, _) = false // yxsat
-function clause is_CSR_exception_virtual(0x806, _, _) = false // yxrm
-function clause is_CSR_exception_virtual(0x807, _, _) = false // ycsr
-function clause is_CSR_exception_virtual(0xCC4, _, _) = false // yl
-function clause is_CSR_exception_virtual(0xCC5, _, _) = false // ytype
-function clause is_CSR_exception_virtual(0xCC6, _, _) = false // ylenb
+function clause is_CSR_exception_virtual((0x008, _, _) if algebra_memory_bank == AlgebraMemory_Y) = false // ystart
+function clause is_CSR_exception_virtual((0x009, _, _) if algebra_memory_bank == AlgebraMemory_Y) = false // yxsat
+function clause is_CSR_exception_virtual((0x00A, _, _) if algebra_memory_bank == AlgebraMemory_Y) = false // yxrm
+function clause is_CSR_exception_virtual((0x00F, _, _) if algebra_memory_bank == AlgebraMemory_Y) = false // ycsr
+function clause is_CSR_exception_virtual((0xC20, _, _) if algebra_memory_bank == AlgebraMemory_Y) = false // yl
+function clause is_CSR_exception_virtual((0xC21, _, _) if algebra_memory_bank == AlgebraMemory_Y) = false // ytype
+function clause is_CSR_exception_virtual((0xC22, _, _) if algebra_memory_bank == AlgebraMemory_Y) = false // ylenb
 
-function clause read_CSR(0x804) = zero_extend(ystart)
-function clause read_CSR(0x805) = zero_extend(ycsr[yxsat])
-function clause read_CSR(0x806) = zero_extend(ycsr[yxrm])
-function clause read_CSR(0x807) = zero_extend(ycsr.bits)
-function clause read_CSR(0xCC4) = zero_extend(yl)
-function clause read_CSR(0xCC5) = ytype.bits
-function clause read_CSR(0xCC6) = YLENB
+function clause read_CSR(0x008 if algebra_memory_bank == AlgebraMemory_Y) = zero_extend(ystart)
+function clause read_CSR(0x009 if algebra_memory_bank == AlgebraMemory_Y) = zero_extend(ycsr[yxsat])
+function clause read_CSR(0x00A if algebra_memory_bank == AlgebraMemory_Y) = zero_extend(ycsr[yxrm])
+function clause read_CSR(0x00F if algebra_memory_bank == AlgebraMemory_Y) = zero_extend(ycsr.bits)
+function clause read_CSR(0xC20 if algebra_memory_bank == AlgebraMemory_Y) = zero_extend(yl)
+function clause read_CSR(0xC21 if algebra_memory_bank == AlgebraMemory_Y) = ytype.bits
+function clause read_CSR(0xC22 if algebra_memory_bank == AlgebraMemory_Y) = YLENB
 
 // Note: The spec recommends trapping if ystart is out of bounds but the
 // current implementation does not yet do that.
@@ -368,19 +368,19 @@ function y_write_yxsat(yxsat_val : bits(1)) -> unit = {
   csr_write_callback("ycsr", zero_extend(ycsr.bits))
 }
 
-function clause write_CSR(0x804, value) = {
+function clause write_CSR((0x008, value) if algebra_memory_bank == AlgebraMemory_Y) = {
   y_set_ystart(value[15 .. 0]);
   Ok(zero_extend(ystart))
 }
-function clause write_CSR(0x805, value) = {
+function clause write_CSR((0x009, value) if algebra_memory_bank == AlgebraMemory_Y) = {
   y_write_ycsr(ycsr[yxrm], value[0 .. 0]);
   Ok(zero_extend(ycsr[yxsat]))
 }
-function clause write_CSR(0x806, value) = {
+function clause write_CSR((0x00A, value) if algebra_memory_bank == AlgebraMemory_Y) = {
   y_write_ycsr(value[1 .. 0], ycsr[yxsat]);
   Ok(zero_extend(ycsr[yxrm]))
 }
-function clause write_CSR(0x807, value) = {
+function clause write_CSR((0x00F, value) if algebra_memory_bank == AlgebraMemory_Y) = {
   y_write_ycsr(value[2 .. 1], value[0 .. 0]);
   Ok(zero_extend(ycsr.bits))
 }

@@ -317,37 +317,37 @@ bitfield Vcsr : bits(3) = {
 }
 register vcsr : Vcsr
 
-mapping clause csr_name_map = 0x008  <-> "vstart"
-mapping clause csr_name_map = 0x009  <-> "vxsat"
-mapping clause csr_name_map = 0x00A  <-> "vxrm"
-mapping clause csr_name_map = 0x00F  <-> "vcsr"
-mapping clause csr_name_map = 0xC20  <-> "vl"
-mapping clause csr_name_map = 0xC21  <-> "vtype"
-mapping clause csr_name_map = 0xC22  <-> "vlenb"
+mapping clause csr_name_map = 0x008 if algebra_memory_bank == AlgebraMemory_V <-> "vstart"
+mapping clause csr_name_map = 0x009 if algebra_memory_bank == AlgebraMemory_V <-> "vxsat"
+mapping clause csr_name_map = 0x00A if algebra_memory_bank == AlgebraMemory_V <-> "vxrm"
+mapping clause csr_name_map = 0x00F if algebra_memory_bank == AlgebraMemory_V <-> "vcsr"
+mapping clause csr_name_map = 0xC20 if algebra_memory_bank == AlgebraMemory_V <-> "vl"
+mapping clause csr_name_map = 0xC21 if algebra_memory_bank == AlgebraMemory_V <-> "vtype"
+mapping clause csr_name_map = 0xC22 if algebra_memory_bank == AlgebraMemory_V <-> "vlenb"
 
-function clause is_CSR_accessible(0x008, _, _) = currentlyEnabled(Ext_Zve32x) // vstart
-function clause is_CSR_accessible(0x009, _, _) = currentlyEnabled(Ext_Zve32x) // vxsat
-function clause is_CSR_accessible(0x00A, _, _) = currentlyEnabled(Ext_Zve32x) // vxrm
-function clause is_CSR_accessible(0x00F, _, _) = currentlyEnabled(Ext_Zve32x) // vcsr
-function clause is_CSR_accessible(0xC20, _, _) = currentlyEnabled(Ext_Zve32x) // vl
-function clause is_CSR_accessible(0xC21, _, _) = currentlyEnabled(Ext_Zve32x) // vtype
-function clause is_CSR_accessible(0xC22, _, _) = currentlyEnabled(Ext_Zve32x) // vlenb
+function clause is_CSR_accessible((0x008, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vstart
+function clause is_CSR_accessible((0x009, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vxsat
+function clause is_CSR_accessible((0x00A, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vxrm
+function clause is_CSR_accessible((0x00F, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vcsr
+function clause is_CSR_accessible((0xC20, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vl
+function clause is_CSR_accessible((0xC21, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vtype
+function clause is_CSR_accessible((0xC22, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vlenb
 
-function clause is_CSR_exception_virtual(0x008, _, _) = false // vstart
-function clause is_CSR_exception_virtual(0x009, _, _) = false // vxsat
-function clause is_CSR_exception_virtual(0x00A, _, _) = false // vxrm
-function clause is_CSR_exception_virtual(0x00F, _, _) = false // vcsr
-function clause is_CSR_exception_virtual(0xC20, _, _) = false // vl
-function clause is_CSR_exception_virtual(0xC21, _, _) = false // vtype
-function clause is_CSR_exception_virtual(0xC22, _, _) = false // vlenb
+function clause is_CSR_exception_virtual((0x008, _, _) if algebra_memory_bank == AlgebraMemory_V) = false // vstart
+function clause is_CSR_exception_virtual((0x009, _, _) if algebra_memory_bank == AlgebraMemory_V) = false // vxsat
+function clause is_CSR_exception_virtual((0x00A, _, _) if algebra_memory_bank == AlgebraMemory_V) = false // vxrm
+function clause is_CSR_exception_virtual((0x00F, _, _) if algebra_memory_bank == AlgebraMemory_V) = false // vcsr
+function clause is_CSR_exception_virtual((0xC20, _, _) if algebra_memory_bank == AlgebraMemory_V) = false // vl
+function clause is_CSR_exception_virtual((0xC21, _, _) if algebra_memory_bank == AlgebraMemory_V) = false // vtype
+function clause is_CSR_exception_virtual((0xC22, _, _) if algebra_memory_bank == AlgebraMemory_V) = false // vlenb
 
-function clause read_CSR(0x008) = zero_extend(vstart)
-function clause read_CSR(0x009) = zero_extend(vcsr[vxsat])
-function clause read_CSR(0x00A) = zero_extend(vcsr[vxrm])
-function clause read_CSR(0x00F) = zero_extend(vcsr.bits)
-function clause read_CSR(0xC20) = zero_extend(vl)
-function clause read_CSR(0xC21) = vtype.bits
-function clause read_CSR(0xC22) = VLENB
+function clause read_CSR(0x008 if algebra_memory_bank == AlgebraMemory_V) = zero_extend(vstart)
+function clause read_CSR(0x009 if algebra_memory_bank == AlgebraMemory_V) = zero_extend(vcsr[vxsat])
+function clause read_CSR(0x00A if algebra_memory_bank == AlgebraMemory_V) = zero_extend(vcsr[vxrm])
+function clause read_CSR(0x00F if algebra_memory_bank == AlgebraMemory_V) = zero_extend(vcsr.bits)
+function clause read_CSR(0xC20 if algebra_memory_bank == AlgebraMemory_V) = zero_extend(vl)
+function clause read_CSR(0xC21 if algebra_memory_bank == AlgebraMemory_V) = vtype.bits
+function clause read_CSR(0xC22 if algebra_memory_bank == AlgebraMemory_V) = VLENB
 
 // Note: The spec recommends trapping if vstart is out of bounds but the
 // current implementation does not yet do that.
@@ -373,7 +373,7 @@ function write_vxsat(vxsat_val: bits(1)) -> unit = {
   csr_write_callback("vcsr", zero_extend(vcsr.bits));
 }
 
-function clause write_CSR(0x008, value) = { set_vstart(value[15 .. 0]); Ok(zero_extend(vstart)) }
-function clause write_CSR(0x009, value) = { write_vcsr (vcsr[vxrm], value[0 .. 0]); Ok(zero_extend(vcsr[vxsat])) }
-function clause write_CSR(0x00A, value) = { write_vcsr (value[1 .. 0], vcsr[vxsat]); Ok(zero_extend(vcsr[vxrm])) }
-function clause write_CSR(0x00F, value) = { write_vcsr (value [2 .. 1], value [0 .. 0]); Ok(zero_extend(vcsr.bits)) }
+function clause write_CSR((0x008, value) if algebra_memory_bank == AlgebraMemory_V) = { set_vstart(value[15 .. 0]); Ok(zero_extend(vstart)) }
+function clause write_CSR((0x009, value) if algebra_memory_bank == AlgebraMemory_V) = { write_vcsr (vcsr[vxrm], value[0 .. 0]); Ok(zero_extend(vcsr[vxsat])) }
+function clause write_CSR((0x00A, value) if algebra_memory_bank == AlgebraMemory_V) = { write_vcsr (value[1 .. 0], vcsr[vxsat]); Ok(zero_extend(vcsr[vxrm])) }
+function clause write_CSR((0x00F, value) if algebra_memory_bank == AlgebraMemory_V) = { write_vcsr (value [2 .. 1], value [0 .. 0]); Ok(zero_extend(vcsr.bits)) }

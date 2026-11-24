@@ -312,37 +312,37 @@ bitfield Wcsr : bits(3) = {
 }
 register wcsr : Wcsr
 
-mapping clause csr_name_map = 0x800  <-> "wstart"
-mapping clause csr_name_map = 0x801  <-> "wxsat"
-mapping clause csr_name_map = 0x802  <-> "wxrm"
-mapping clause csr_name_map = 0x803  <-> "wcsr"
-mapping clause csr_name_map = 0xCC0  <-> "wl"
-mapping clause csr_name_map = 0xCC1  <-> "wtype"
-mapping clause csr_name_map = 0xCC2  <-> "wlenb"
+mapping clause csr_name_map = 0x008 if algebra_memory_bank == AlgebraMemory_W <-> "wstart"
+mapping clause csr_name_map = 0x009 if algebra_memory_bank == AlgebraMemory_W <-> "wxsat"
+mapping clause csr_name_map = 0x00A if algebra_memory_bank == AlgebraMemory_W <-> "wxrm"
+mapping clause csr_name_map = 0x00F if algebra_memory_bank == AlgebraMemory_W <-> "wcsr"
+mapping clause csr_name_map = 0xC20 if algebra_memory_bank == AlgebraMemory_W <-> "wl"
+mapping clause csr_name_map = 0xC21 if algebra_memory_bank == AlgebraMemory_W <-> "wtype"
+mapping clause csr_name_map = 0xC22 if algebra_memory_bank == AlgebraMemory_W <-> "wlenb"
 
-function clause is_CSR_accessible(0x800, _, _) = currentlyEnabled(Ext_W) // wstart
-function clause is_CSR_accessible(0x801, _, _) = currentlyEnabled(Ext_W) // wxsat
-function clause is_CSR_accessible(0x802, _, _) = currentlyEnabled(Ext_W) // wxrm
-function clause is_CSR_accessible(0x803, _, _) = currentlyEnabled(Ext_W) // wcsr
-function clause is_CSR_accessible(0xCC0, _, _) = currentlyEnabled(Ext_W) // wl
-function clause is_CSR_accessible(0xCC1, _, _) = currentlyEnabled(Ext_W) // wtype
-function clause is_CSR_accessible(0xCC2, _, _) = currentlyEnabled(Ext_W) // wlenb
+function clause is_CSR_accessible((0x008, _, _) if algebra_memory_bank == AlgebraMemory_W) = currentlyEnabled(Ext_W) // wstart
+function clause is_CSR_accessible((0x009, _, _) if algebra_memory_bank == AlgebraMemory_W) = currentlyEnabled(Ext_W) // wxsat
+function clause is_CSR_accessible((0x00A, _, _) if algebra_memory_bank == AlgebraMemory_W) = currentlyEnabled(Ext_W) // wxrm
+function clause is_CSR_accessible((0x00F, _, _) if algebra_memory_bank == AlgebraMemory_W) = currentlyEnabled(Ext_W) // wcsr
+function clause is_CSR_accessible((0xC20, _, _) if algebra_memory_bank == AlgebraMemory_W) = currentlyEnabled(Ext_W) // wl
+function clause is_CSR_accessible((0xC21, _, _) if algebra_memory_bank == AlgebraMemory_W) = currentlyEnabled(Ext_W) // wtype
+function clause is_CSR_accessible((0xC22, _, _) if algebra_memory_bank == AlgebraMemory_W) = currentlyEnabled(Ext_W) // wlenb
 
-function clause is_CSR_exception_virtual(0x800, _, _) = false // wstart
-function clause is_CSR_exception_virtual(0x801, _, _) = false // wxsat
-function clause is_CSR_exception_virtual(0x802, _, _) = false // wxrm
-function clause is_CSR_exception_virtual(0x803, _, _) = false // wcsr
-function clause is_CSR_exception_virtual(0xCC0, _, _) = false // wl
-function clause is_CSR_exception_virtual(0xCC1, _, _) = false // wtype
-function clause is_CSR_exception_virtual(0xCC2, _, _) = false // wlenb
+function clause is_CSR_exception_virtual((0x008, _, _) if algebra_memory_bank == AlgebraMemory_W) = false // wstart
+function clause is_CSR_exception_virtual((0x009, _, _) if algebra_memory_bank == AlgebraMemory_W) = false // wxsat
+function clause is_CSR_exception_virtual((0x00A, _, _) if algebra_memory_bank == AlgebraMemory_W) = false // wxrm
+function clause is_CSR_exception_virtual((0x00F, _, _) if algebra_memory_bank == AlgebraMemory_W) = false // wcsr
+function clause is_CSR_exception_virtual((0xC20, _, _) if algebra_memory_bank == AlgebraMemory_W) = false // wl
+function clause is_CSR_exception_virtual((0xC21, _, _) if algebra_memory_bank == AlgebraMemory_W) = false // wtype
+function clause is_CSR_exception_virtual((0xC22, _, _) if algebra_memory_bank == AlgebraMemory_W) = false // wlenb
 
-function clause read_CSR(0x800) = zero_extend(wstart)
-function clause read_CSR(0x801) = zero_extend(wcsr[wxsat])
-function clause read_CSR(0x802) = zero_extend(wcsr[wxrm])
-function clause read_CSR(0x803) = zero_extend(wcsr.bits)
-function clause read_CSR(0xCC0) = zero_extend(wl)
-function clause read_CSR(0xCC1) = wtype.bits
-function clause read_CSR(0xCC2) = WLENB
+function clause read_CSR(0x008 if algebra_memory_bank == AlgebraMemory_W) = zero_extend(wstart)
+function clause read_CSR(0x009 if algebra_memory_bank == AlgebraMemory_W) = zero_extend(wcsr[wxsat])
+function clause read_CSR(0x00A if algebra_memory_bank == AlgebraMemory_W) = zero_extend(wcsr[wxrm])
+function clause read_CSR(0x00F if algebra_memory_bank == AlgebraMemory_W) = zero_extend(wcsr.bits)
+function clause read_CSR(0xC20 if algebra_memory_bank == AlgebraMemory_W) = zero_extend(wl)
+function clause read_CSR(0xC21 if algebra_memory_bank == AlgebraMemory_W) = wtype.bits
+function clause read_CSR(0xC22 if algebra_memory_bank == AlgebraMemory_W) = WLENB
 
 // Note: The spec recommends trapping if wstart is out of bounds but the
 // current implementation does not yet do that.
@@ -368,19 +368,19 @@ function w_write_wxsat(wxsat_val : bits(1)) -> unit = {
   csr_write_callback("wcsr", zero_extend(wcsr.bits))
 }
 
-function clause write_CSR(0x800, value) = {
+function clause write_CSR((0x008, value) if algebra_memory_bank == AlgebraMemory_W) = {
   w_set_wstart(value[15 .. 0]);
   Ok(zero_extend(wstart))
 }
-function clause write_CSR(0x801, value) = {
+function clause write_CSR((0x009, value) if algebra_memory_bank == AlgebraMemory_W) = {
   w_write_wcsr(wcsr[wxrm], value[0 .. 0]);
   Ok(zero_extend(wcsr[wxsat]))
 }
-function clause write_CSR(0x802, value) = {
+function clause write_CSR((0x00A, value) if algebra_memory_bank == AlgebraMemory_W) = {
   w_write_wcsr(value[1 .. 0], wcsr[wxsat]);
   Ok(zero_extend(wcsr[wxrm]))
 }
-function clause write_CSR(0x803, value) = {
+function clause write_CSR((0x00F, value) if algebra_memory_bank == AlgebraMemory_W) = {
   w_write_wcsr(value[2 .. 1], value[0 .. 0]);
   Ok(zero_extend(wcsr.bits))
 }
