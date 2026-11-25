@@ -652,6 +652,9 @@
     ]
   },
   "extensions": {
+    "P": {
+      "supported": true
+    },
     "M": {
       "supported": true,
       "mutable_misa": true
@@ -943,6 +946,12 @@
       "supported": false
     },
     "Zabha": {
+      "supported": true
+    },
+    "Zabhlrsc": {
+      "supported": false
+    },
+    "Zalasr": {
       "supported": true
     },
     "Zacas": {

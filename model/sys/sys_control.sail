@@ -514,6 +514,7 @@ function reset_misa() -> unit = {
   misa[M]   = bool_to_bit(hartSupports(Ext_M));   // integer multiply/divide
   misa[U]   = bool_to_bit(hartSupports(Ext_U));   // user-mode
   misa[S]   = bool_to_bit(hartSupports(Ext_S));   // supervisor-mode
+  misa[P] = bool_to_bit(hartSupports(Ext_P));
   misa[V]   = bool_to_bit(hartSupports(Ext_V));   // vector extension
   misa[W]   = bool_to_bit(hartSupports(Ext_W));   // matrix extension
   misa[Y]   = bool_to_bit(hartSupports(Ext_Y));   // tensor extension

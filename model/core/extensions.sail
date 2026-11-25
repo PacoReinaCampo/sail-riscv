@@ -169,6 +169,10 @@ mapping clause extensionName = Ext_Shvstvecd <-> "shvstvecd"
 function clause hartSupports(Ext_Shvstvecd) = config extensions.Shvstvecd.supported
 function clause currentlyEnabled(Ext_Shvstvecd) = hartSupports(Ext_Shvstvecd) & currentlyEnabled(Ext_H)
 
+enum clause extension = Ext_P
+mapping clause extensionName = Ext_P <-> "p"
+function clause hartSupports(Ext_P) = sys_enable_experimental_extensions() & config extensions.P.supported
+
 enum clause extension = Ext_Zibi
 mapping clause extensionName = Ext_Zibi <-> "zibi"
 function clause hartSupports(Ext_Zibi) = sys_enable_experimental_extensions() & config extensions.Zibi.supported
@@ -247,6 +251,12 @@ function clause hartSupports(Ext_Zaamo) = config extensions.Zaamo.supported
 enum clause extension = Ext_Zabha
 mapping clause extensionName = Ext_Zabha <-> "zabha"
 function clause hartSupports(Ext_Zabha) = config extensions.Zabha.supported
+enum clause extension = Ext_Zabhlrsc
+mapping clause extensionName = Ext_Zabhlrsc <-> "zabhlrsc"
+function clause hartSupports(Ext_Zabhlrsc) = sys_enable_experimental_extensions() & config extensions.Zabhlrsc.supported
+enum clause extension = Ext_Zalasr
+mapping clause extensionName = Ext_Zalasr <-> "zalasr"
+function clause hartSupports(Ext_Zalasr) = config extensions.Zalasr.supported
 // Atomic Compare-and-Swap (CAS) Instructions
 enum clause extension = Ext_Zacas
 mapping clause extensionName = Ext_Zacas <-> "zacas"
@@ -900,7 +910,7 @@ let extensions_ordered_for_isa_string = [
   // Ext_Q,
   Ext_C,
   Ext_B,
-  // Ext_P,
+  Ext_P,
   Ext_V,
   Ext_W,
   Ext_Y,
@@ -939,7 +949,9 @@ let extensions_ordered_for_isa_string = [
   Ext_Za64rs,
   Ext_Zaamo,
   Ext_Zabha,
+  Ext_Zabhlrsc,
   Ext_Zacas,
+  Ext_Zalasr,
   Ext_Zalrsc,
   Ext_Zama16b,
   Ext_Zawrs,

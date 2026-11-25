@@ -326,7 +326,8 @@ mapping clause csr_name_map = 0xC21 if algebra_memory_bank == AlgebraMemory_V <-
 mapping clause csr_name_map = 0xC22 if algebra_memory_bank == AlgebraMemory_V <-> "vlenb"
 
 function clause is_CSR_accessible((0x008, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vstart
-function clause is_CSR_accessible((0x009, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vxsat
+function clause is_CSR_accessible((0x009, _, _) if algebra_memory_bank == AlgebraMemory_V) =
+  currentlyEnabled(Ext_Zve32x) | (currentlyEnabled(Ext_P) & not(hartSupports(Ext_Zve32x))) // vxsat
 function clause is_CSR_accessible((0x00A, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vxrm
 function clause is_CSR_accessible((0x00F, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vcsr
 function clause is_CSR_accessible((0xC20, _, _) if algebra_memory_bank == AlgebraMemory_V) = currentlyEnabled(Ext_Zve32x) // vl
@@ -361,13 +362,13 @@ function set_vstart(value : bits(16)) -> unit = {
 private function write_vcsr(vxrm_val : bits(2), vxsat_val : bits(1)) -> unit = {
   vcsr[vxrm]  = vxrm_val; // Note: frm can be an illegal value, 101, 110, 111
   vcsr[vxsat] = vxsat_val;
-  dirty_v_context()
+  if currentlyEnabled(Ext_Zve32x) then dirty_v_context()
 }
 
 function write_vxsat(vxsat_val: bits(1)) -> unit = {
   if vcsr[vxsat] != vxsat_val then {
     vcsr[vxsat] = vxsat_val;
-    dirty_v_context();
+    if currentlyEnabled(Ext_Zve32x) then dirty_v_context();
   };
   csr_write_callback("vxsat", zero_extend(vcsr[vxsat]));
   csr_write_callback("vcsr", zero_extend(vcsr.bits));

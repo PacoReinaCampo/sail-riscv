@@ -109,6 +109,8 @@ mapping sp_reg_name : unit <-> string = {
 
 mapping creg_name : cregidx <-> string = { Cregidx(i) <-> reg_name(encdec_reg(0b01 @ i)) }
 
+mapping preg_name : pregidx <-> string = { Pregidx(i) <-> reg_name(encdec_reg(i @ 0b0)) }
+
 function xreg_write_callback(reg : regidx, value : xlenbits) -> unit = {
   let name = reg_name(reg);
   xreg_full_write_callback(name, reg, value);

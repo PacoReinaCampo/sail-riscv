@@ -28,13 +28,13 @@ set_trap_handler:
   csrw mcause, x0
 
 perform_access1:
-  la s3, EXPECTED_TVAL1
-  la t0, INVALID_PHYSADDR1
+  li s3, EXPECTED_TVAL1
+  li t0, INVALID_PHYSADDR1
   lw t0, 0(t0)
 
 perform_access2:
-  la s3, EXPECTED_TVAL2
-  la t0, INVALID_PHYSADDR2
+  li s3, EXPECTED_TVAL2
+  li t0, INVALID_PHYSADDR2
   lw t0, 0(t0)
   j pass
 

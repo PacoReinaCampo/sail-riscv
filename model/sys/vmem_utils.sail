@@ -221,7 +221,7 @@ function vmem_read_addr(vaddr, width, access, access_info, aq, rl, res) = {
   // We should only split the access before address translation if (a)
   // virtual memory is in effect, and (b) it crosses a page boundary.
   // If we do split, perform the split access in the configured order.
-  let do_split_access = is_vmem_active(eff_priv) & next_page_bytes > 0 & not(res);
+  let do_split_access = is_vmem_active(eff_priv) & next_page_bytes > 0 & not(res | aq | rl);
 
   if sys_misaligned_order_decreasing & do_split_access then {
     // Do next page access first.
@@ -341,7 +341,7 @@ function vmem_write_addr(vaddr, width, data, access, access_info, aq, rl, res) =
 
   let (in_page_bytes, next_page_bytes) = split_on_page_boundary(vaddr_bits, width);
 
-  let do_split_access = is_vmem_active(eff_priv) & next_page_bytes > 0 & not(res);
+  let do_split_access = is_vmem_active(eff_priv) & next_page_bytes > 0 & not(res | aq | rl);
 
   if sys_misaligned_order_decreasing & do_split_access then {
     let access_addr = Virtaddr(vaddr_bits + in_page_bytes);

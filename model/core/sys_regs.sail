@@ -141,6 +141,7 @@ private function legalize_misa(m : Misa, v : xlenbits) -> Misa = {
   let B = if hartSupports(Ext_B) then { if config extensions.B.mutable_misa then v[B] else m[B] } else 0b0;
   let C = if hartSupports(Ext_C) then { if config extensions.C.mutable_misa then v[C] else m[C] } else 0b0;
   let M = if hartSupports(Ext_M) then { if config extensions.M.mutable_misa then v[M] else m[M] } else 0b0;
+  let P = if hartSupports(Ext_P) then v[P] else 0b0;
   let F = if hartSupports(Ext_F) then { if config extensions.F.mutable_misa then v[F] else m[F] } else 0b0;
   let D = if hartSupports(Ext_D) & F == 0b1 then { if config extensions.D.mutable_misa then v[D] else m[D] } else 0b0;
   // let Q = if hartSupports(Ext_Q) & F == 0b1 & D == 0b1 then { if config extensions.Q.mutable_misa then v[Q] else m[Q] } else 0b0;
@@ -152,7 +153,7 @@ private function legalize_misa(m : Misa, v : xlenbits) -> Misa = {
   if   (C == 0b0 & m[C] == 0b1 & (nextPC[1] == 0b1 | ext_veto_disable_C()))
   then m
   else [m with
-    A, B, C, D, F, H, M, S, U, V,
+    A, B, C, D, F, H, M, P, S, U, V,
     W = bool_to_bit(hartSupports(Ext_W)),
     Y = bool_to_bit(hartSupports(Ext_Y)),
     // Writable I is not currently supported.
