@@ -72,6 +72,21 @@ function clause hartSupports(Ext_W) = config extensions.W.supported
 enum clause extension = Ext_Y
 mapping clause extensionName = Ext_Y <-> "y"
 function clause hartSupports(Ext_Y) = config extensions.Y.supported
+enum clause extension = Ext_RvO
+mapping clause extensionName = Ext_RvO <-> "rvo"
+function clause hartSupports(Ext_RvO) = config extensions.RvO.supported
+
+enum clause extension = Ext_Xwk
+mapping clause extensionName = Ext_Xwk <-> "xwk"
+function clause hartSupports(Ext_Xwk) = (config extensions.Xwk.supported : bool) & hartSupports(Ext_W)
+
+enum clause extension = Ext_Xyk
+mapping clause extensionName = Ext_Xyk <-> "xyk"
+function clause hartSupports(Ext_Xyk) = (config extensions.Xyk.supported : bool) & hartSupports(Ext_Y)
+
+function long_instructions_supported() -> bool =
+  hartSupports(Ext_RvO) | hartSupports(Ext_Xwk) | hartSupports(Ext_Xyk)
+
 // Supervisor
 enum clause extension = Ext_S
 mapping clause extensionName = Ext_S <-> "s"
@@ -312,6 +327,9 @@ function clause hartSupports(Ext_Zdinx) = config extensions.Zdinx.supported
 enum clause extension = Ext_Zca
 mapping clause extensionName = Ext_Zca <-> "zca"
 function clause hartSupports(Ext_Zca) = config extensions.Zca.supported
+
+function ialign16_enabled() -> bool =
+  currentlyEnabled(Ext_Zca) | long_instructions_supported()
 // Code Size Reduction: additional 16-bit aliases
 enum clause extension = Ext_Zcb
 mapping clause extensionName = Ext_Zcb <-> "zcb"
@@ -861,6 +879,8 @@ function currentlyEnabled_measure(ext : extension) -> int =
     Ext_Zcd => 3, // > D
     Ext_Zfhmin => 3, // > Zfh
     Ext_Zicfilp => 3, // > get_xLPE
+    Ext_Xwk => 3,
+    Ext_Xyk => 3,
     Ext_Zwbc => 3, // > W
     Ext_Zybc => 3, // > Y
     Ext_Zvbc => 3, // > Zve64x
@@ -914,6 +934,9 @@ let extensions_ordered_for_isa_string = [
   Ext_V,
   Ext_W,
   Ext_Y,
+  Ext_RvO,
+  Ext_Xwk,
+  Ext_Xyk,
   Ext_H,
   // S and U are not valid extensions in the device-tree, whereas H is.
 

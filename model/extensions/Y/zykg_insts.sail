@@ -1,0 +1,100 @@
+union clause instruction = XYK_YGHSH_YY : (yregidx, yregidx, yregidx)
+
+mapping clause encdec48 = XYK_YGHSH_YY(ys2, ys1, yd)
+  <-> 0x0000 @ 0b1011001 @ y_encdec_yreg(ys2) @ y_encdec_yreg(ys1) @ 0b010 @ y_encdec_yreg(yd) @ 0b1011111
+  when y_valid_ytype() & currentlyEnabled(Ext_Xyk) & y_get_sew() == 32 & zyk_check_encdec(128, 4)
+
+function clause execute XYK_YGHSH_YY(ys2, ys1, yd) = {
+  let SEW      = y_get_sew();
+  let LMUL_pow = y_get_lmul_pow();
+  let num_elem = y_get_num_elem(LMUL_pow, SEW);
+
+  if not(y_valid_reg_group(ys1, LMUL_pow)) |
+     not(y_valid_reg_group(ys2, LMUL_pow)) |
+     not(y_valid_reg_group(yd, LMUL_pow))
+  then return Illegal_Instruction();
+
+  assert(SEW == 32);
+
+  let ys2_val = y_read_yreg(num_elem, SEW, LMUL_pow, ys2);
+  let ys1_val = y_read_yreg(num_elem, SEW, LMUL_pow, ys1);
+  let yd_val  = y_read_yreg(num_elem, SEW, LMUL_pow, yd);
+
+  let group_count = (unsigned(yl) / 4);
+  let first_group = (unsigned(ystart) / 4);
+
+  foreach (group_index from first_group to (group_count - 1)) {
+    assert(group_index * 4 + 3 < num_elem);
+
+    let Y : bits(128) = y_get_yelem_quad(yd_val, group_index);
+    let X : bits(128) = y_get_yelem_quad(ys1_val, group_index);
+    var H : bits(128) = brev8(y_get_yelem_quad(ys2_val, group_index));
+
+    var Z : bits(128) = zeros();
+    let S : bits(128) = brev8(Y ^ X);
+
+    foreach (b from 0 to 127) {
+      if S[b] == 0b1 then Z = Z ^ H;
+
+      let reduce = H[127] == 0b1;
+      H = H << 1;
+      if reduce then H = H[127..8] @ (H[7..0] ^ 0x87);
+    };
+
+    y_write_yelem_quad(yd, SEW, brev8(Z), group_index);
+  };
+
+  y_set_ystart(zeros());
+  RETIRE_SUCCESS
+}
+
+mapping clause assembly = XYK_YGHSH_YY(ys2, ys1, yd)
+  <-> "yghsh.yy" ^ spc() ^ y_yreg_name(yd) ^ sep() ^ y_yreg_name(ys2) ^ sep() ^ y_yreg_name(ys1)
+
+union clause instruction = XYK_YGMUL_YY : (yregidx, yregidx)
+
+mapping clause encdec48 = XYK_YGMUL_YY(ys2, yd)
+  <-> 0x0000 @ 0b1010001 @ y_encdec_yreg(ys2) @ 0b10001 @ 0b010 @ y_encdec_yreg(yd) @ 0b1011111
+  when y_valid_ytype() & currentlyEnabled(Ext_Xyk) & y_get_sew() == 32 & zyk_check_encdec(128, 4)
+
+function clause execute XYK_YGMUL_YY(ys2, yd) = {
+  let SEW      = y_get_sew();
+  let LMUL_pow = y_get_lmul_pow();
+  let num_elem = y_get_num_elem(LMUL_pow, SEW);
+
+  if not(y_valid_reg_group(ys2, LMUL_pow)) |
+     not(y_valid_reg_group(yd, LMUL_pow))
+  then return Illegal_Instruction();
+
+  assert(SEW == 32);
+
+  let ys2_val = y_read_yreg(num_elem, SEW, LMUL_pow, ys2);
+  let yd_val  = y_read_yreg(num_elem, SEW, LMUL_pow, yd);
+
+  let group_count = (unsigned(yl) / 4);
+  let first_group = (unsigned(ystart) / 4);
+
+  foreach (group_index from first_group to (group_count - 1)) {
+    assert(group_index * 4 + 3 < num_elem);
+
+    let Y : bits(128) = brev8(y_get_yelem_quad(yd_val, group_index));
+    var H : bits(128) = brev8(y_get_yelem_quad(ys2_val, group_index));
+    var Z : bits(128) = zeros();
+
+    foreach (b from 0 to 127) {
+      if Y[b] == 0b1 then Z = Z ^ H;
+
+      let reduce = H[127] == 0b1;
+      H = H << 1;
+      if reduce then H = H[127..8] @ (H[7..0] ^ 0x87);
+    };
+
+    y_write_yelem_quad(yd, SEW, brev8(Z), group_index);
+  };
+
+  y_set_ystart(zeros());
+  RETIRE_SUCCESS
+}
+
+mapping clause assembly = XYK_YGMUL_YY(ys2, yd)
+  <-> "ygmul.yy" ^ spc() ^ y_yreg_name(yd) ^ sep() ^ y_yreg_name(ys2)

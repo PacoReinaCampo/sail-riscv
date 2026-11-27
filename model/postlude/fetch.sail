@@ -11,23 +11,13 @@
 
 private function isRVC(h : half) -> bool = not(h[1 .. 0] == 0b11)
 
-// This instruction byte fetcher is used for partial fetches, and
-// hence doesn't return the FetchResult type that a full fetcher does.
-// All the bytes fetched go through memory protection and PMA checks;
-// this just barely works for Ziccif with ILEN=32 (bits) since there
-// are no discarded bytes that lie outside protection boundaries.
-// This will have to be generalized when ILEN is increased above 32
-// (e.g. to 48): there could be discarded bytes that straddle
-// protection boundaries in that case, and memory protection and PMA
-// checks do not apply to discarded bytes.
-
 private union FetchBytes_Result('width : Int), 'width >= 0 = {
   FetchBytes_Ext_Error : ext_fetch_addr_error,
   FetchBytes_Exception : ExceptionContext,
   FetchBytes_Success   : bits('width * 8),
 }
 
-private function fetch_bytes forall 'n, 'n in {2, 4} . (fetch_start : xlenbits, granule_start : xlenbits, width : int('n)) -> FetchBytes_Result('n) = {
+private function fetch_bytes forall 'n, 'n in {2, 4, 8} . (fetch_start : xlenbits, granule_start : xlenbits, width : int('n)) -> FetchBytes_Result('n) = {
   match ext_fetch_check_pc(fetch_start, granule_start) {
     Some(e) => return FetchBytes_Ext_Error(e),
     None()  => (),
@@ -51,6 +41,71 @@ private function fetch_bytes forall 'n, 'n in {2, 4} . (fetch_start : xlenbits, 
   }
 }
 
+private function fetch48_enabled(h : half) -> bool =
+  (h[6 .. 0] == 0b0011111 & hartSupports(Ext_Xwk)) |
+  (h[6 .. 0] == 0b1011111 & hartSupports(Ext_Xyk))
+
+private function fetch64_enabled(h : half) -> bool =
+  h[6 .. 0] == 0b0111111 & hartSupports(Ext_RvO)
+
+private function fetch_last_parcel(lower : bits(48)) -> FetchResult =
+  match fetch_bytes(PC, PC + 6, 2) {
+    FetchBytes_Ext_Error(e) => F_Ext_Error(e),
+    FetchBytes_Exception(e) => F_Error(e),
+    FetchBytes_Success(p) => F_Long64(p @ lower),
+  }
+
+private function fetch_remaining(first : bits(32)) -> FetchResult = {
+  let h = first[15 .. 0];
+  let is48 = fetch48_enabled(h);
+  let is64 = fetch64_enabled(h);
+  if not(is48 | is64) then return F_Base(first);
+
+  if is64 & currentlyEnabled(Ext_Ziccif) & is_aligned_addr(Virtaddr(PC), 4) then {
+    if xlen == 64 & is_aligned_addr(Virtaddr(PC), 8) then {
+      return match fetch_bytes(PC, PC, 8) {
+        FetchBytes_Ext_Error(e) => F_Ext_Error(e),
+        FetchBytes_Exception(e) => F_Error(e),
+        FetchBytes_Success(full) => {
+          let low = full[15 .. 0];
+          if fetch64_enabled(low) then F_Long64(full)
+          else if fetch48_enabled(low) then F_Long48(full[47 .. 0])
+          else if isRVC(low) then F_RVC(low)
+          else F_Base(full[31 .. 0])
+        },
+      }
+    };
+    return match fetch_bytes(PC, PC + 4, 4) {
+      FetchBytes_Ext_Error(e) => F_Ext_Error(e),
+      FetchBytes_Exception(e) => F_Error(e),
+      FetchBytes_Success(high) => F_Long64(high @ first),
+    }
+  };
+
+  match fetch_bytes(PC, PC + 4, 2) {
+    FetchBytes_Ext_Error(e) => F_Ext_Error(e),
+    FetchBytes_Exception(e) => F_Error(e),
+    FetchBytes_Success(p) => if is48 then F_Long48(p @ first) else fetch_last_parcel(p @ first),
+  }
+}
+
+private function fetch_after_first(ilo : half) -> FetchResult = {
+  if isRVC(ilo) then return F_RVC(ilo);
+  if currentlyEnabled(Ext_Ziccif) & (fetch48_enabled(ilo) | fetch64_enabled(ilo)) then {
+    return match fetch_bytes(PC, PC + 2, 4) {
+      FetchBytes_Ext_Error(e) => F_Ext_Error(e),
+      FetchBytes_Exception(e) => F_Error(e),
+      FetchBytes_Success(ihi) =>
+        if fetch48_enabled(ilo) then F_Long48(ihi @ ilo) else fetch_last_parcel(ihi @ ilo),
+    }
+  };
+  match fetch_bytes(PC, PC + 2, 2) {
+    FetchBytes_Ext_Error(e) => F_Ext_Error(e),
+    FetchBytes_Exception(e) => F_Error(e),
+    FetchBytes_Success(ihi) => fetch_remaining(ihi @ ilo),
+  }
+}
+
 private function fetch() -> FetchResult = {
   // TODO: Add a parameter to try_step() to allow forcing the fetch result and use that instead.
 
@@ -64,22 +119,9 @@ private function fetch() -> FetchResult = {
     None()  => (),
   };
 
-  if   (PC[0] != 0b0 | (PC[1] != 0b0 & not(currentlyEnabled(Ext_Zca))))
+  if   (PC[0] != 0b0 | (PC[1] != 0b0 & not(ialign16_enabled())))
   then return F_Error(exception_context(E_Fetch_Addr_Align(), PC));
 
-  // For a PC aligned at ILEN=32, perform an atomic fetch for Ziccif.
-  //
-  // NOTE: The atomicity requirements for the fetch can be implemented
-  // in the memory model in two ways: (i) A single memory transaction
-  // in Sail, i.e. the approach followed below, or (ii) multiple smaller
-  // (e.g. 2-byte) fetches, along with rules in the memory model specifying
-  // that nothing can intervene between these smaller
-  // intra-instruction fetches.  The former approach is currently simpler
-  // since it does not require any additional rules in the memory model.
-  // However, if/when ILEN is increased to 48 and higher, it may be that
-  // the complexities around memory protection could be addressed using
-  // smaller fetches and augmenting the memory model with these additional
-  // rules for intra-instruction split fetches.
   if is_aligned_addr(Virtaddr(PC), 4) & currentlyEnabled(Ext_Ziccif) then {
     match fetch_bytes(PC, PC, 4) {
       FetchBytes_Ext_Error(e)   => F_Ext_Error(e),
@@ -91,7 +133,7 @@ private function fetch() -> FetchResult = {
       // bytes. This situation may still occur if MMIO devices are
       // incorrectly configured, but this is not checked currently.
       FetchBytes_Exception(e)   => F_Error(e),
-      FetchBytes_Success(bytes) => if isRVC(bytes[15 .. 0]) then F_RVC(bytes[15 .. 0]) else F_Base(bytes),
+      FetchBytes_Success(bytes) => if isRVC(bytes[15 .. 0]) then F_RVC(bytes[15 .. 0]) else fetch_remaining(bytes),
     }
   } else {
     // Split instruction fetch into 16-bit granules to handle RVC, as
@@ -100,14 +142,7 @@ private function fetch() -> FetchResult = {
     match fetch_bytes(PC, PC, 2) {
       FetchBytes_Ext_Error(e) => F_Ext_Error(e),
       FetchBytes_Exception(e) => F_Error(e),
-      FetchBytes_Success(ilo) =>
-        if   isRVC(ilo)
-        then F_RVC(ilo)
-        else match fetch_bytes(PC, PC + 2, 2) {
-          FetchBytes_Ext_Error(e) => F_Ext_Error(e),
-          FetchBytes_Exception(e) => F_Error(e),
-          FetchBytes_Success(ihi) => F_Base(append(ihi, ilo)),
-        },
+      FetchBytes_Success(ilo) => fetch_after_first(ilo),
     }
   }
 }

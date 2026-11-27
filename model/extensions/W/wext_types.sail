@@ -53,3 +53,10 @@ mapping w_nfields_pow2_string : w_nfields_pow2 <-> string = {
 
 let w_illegal_wtype_reserved_behavior : IllegalVtypeReservedBehavior = config extensions.W.reserved_behavior.illegal_vtype
 let w_wstart_reserved_behavior : OOBVstartReservedBehavior = config extensions.W.reserved_behavior.vstart_out_of_bounds
+
+enum zwk_wsha2_funct6 = {XWK_ZWK_WSHA2CH_WW, XWK_ZWK_WSHA2CL_WW}
+enum zwk_wsm4r_funct6 = {XWK_ZWK_WSM4R_WW, XWK_ZWK_WSM4R_WS}
+enum zwk_waesdf_funct6 = {XWK_ZWK_WAESDF_WW, XWK_ZWK_WAESDF_WS}
+enum zwk_waesdm_funct6 = {XWK_ZWK_WAESDM_WW, XWK_ZWK_WAESDM_WS}
+enum zwk_waesef_funct6 = {XWK_ZWK_WAESEF_WW, XWK_ZWK_WAESEF_WS}
+enum zwk_waesem_funct6 = {XWK_ZWK_WAESEM_WW, XWK_ZWK_WAESEM_WS}

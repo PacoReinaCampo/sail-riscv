@@ -102,6 +102,7 @@ extensions {
 
       files
         extensions/I/base_insts.sail,
+        extensions/I/oext_insts.sail,
         if $RMEM then
           extensions/I/jalr_rmem.sail
         else
@@ -270,7 +271,7 @@ extensions {
     }
 
     W_instructions {
-      requires sys, I, FD, W_types, W_core, Sdtrig
+      requires sys, I, FD, W_types, W_core, Sdtrig, K_core
       files
         extensions/W/wext_utils_insts.sail,
         extensions/W/wext_fp_utils_insts.sail,
@@ -284,6 +285,13 @@ extensions {
         extensions/W/wext_red_insts.sail,
         extensions/W/wext_fp_red_insts.sail,
         extensions/W/zwbc_insts.sail,
+        extensions/W/zwk_utils.sail,
+        extensions/W/zwbb_insts.sail,
+        extensions/W/zwkg_insts.sail,
+        extensions/W/zwkned_insts.sail,
+        extensions/W/zwknhab_insts.sail,
+        extensions/W/zwksed_insts.sail,
+        extensions/W/zwksh_insts.sail,
     }
   }
 
@@ -306,7 +314,7 @@ extensions {
     }
 
     Y_instructions {
-      requires sys, I, FD, Y_types, Y_core, Sdtrig
+      requires sys, I, FD, Y_types, Y_core, Sdtrig, K_core
       files
         extensions/Y/yext_utils_insts.sail,
         extensions/Y/yext_fp_utils_insts.sail,
@@ -320,6 +328,13 @@ extensions {
         extensions/Y/yext_red_insts.sail,
         extensions/Y/yext_fp_red_insts.sail,
         extensions/Y/zybc_insts.sail,
+        extensions/Y/zyk_utils.sail,
+        extensions/Y/zybb_insts.sail,
+        extensions/Y/zykg_insts.sail,
+        extensions/Y/zykned_insts.sail,
+        extensions/Y/zyknhab_insts.sail,
+        extensions/Y/zyksed_insts.sail,
+        extensions/Y/zyksh_insts.sail,
     }
   }
 

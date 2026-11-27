@@ -58,6 +58,8 @@ function hart_is_waiting(s : HartState) -> bool =
 
 union FetchResult = {
   F_Ext_Error : ext_fetch_addr_error,      // For extensions
+  F_Long48    : bits(48),
+  F_Long64    : bits(64),
   F_Base      : word,                      // Base ISA
   F_RVC       : half,                      // Compressed ISA
   F_Error     : ExceptionContext           // Exception Context

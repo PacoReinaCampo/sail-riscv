@@ -776,7 +776,7 @@ register mepc : xlenbits
 // When Zca is supported (whether it is enabled or not), it zeroes only xepc[0].
 // PUBLIC: invoked from set_xepc() [exceptions/sys_exceptions.sail]
 function legalize_xepc(v : xlenbits) -> xlenbits = {
-  if   hartSupports(Ext_Zca)
+  if   hartSupports(Ext_Zca) | long_instructions_supported()
   then [v with 0 = 0b0]
   else [v with 1..0 = zeros()]
 }
@@ -784,7 +784,7 @@ function legalize_xepc(v : xlenbits) -> xlenbits = {
 // Align value to min supported PC alignment. This is used to
 // legalize xepc reads.
 function align_pc(addr : xlenbits) -> xlenbits = {
-  if currentlyEnabled(Ext_Zca)
+  if ialign16_enabled()
   then [addr with 0 = 0b0]
   else [addr with 1..0 = zeros()]
 }

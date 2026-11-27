@@ -686,6 +686,9 @@
       // marked as supported based on Zca, Zcf, and Zcd
       "mutable_misa": true
     },
+    "RvO": { "supported": false },
+    "Xwk": { "supported": false },
+    "Xyk": { "supported": false },
     "Zwbc": { "supported": false },
     "Zybc": { "supported": false },
     "W": {

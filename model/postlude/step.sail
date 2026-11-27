@@ -112,6 +112,36 @@ private function run_hart_waiting(_step_no : nat, wr: WaitReason, instr_info : i
   }
 }
 
+private function run_long_instruction forall 'n, 'n in {6, 8}. (
+  step_no : nat, width : int('n), opcode : bits(8 * 'n),
+  fetch_privilege : Privilege, fetch_trigger_reentrance : bool,
+) -> Step = {
+  sail_instr_announce(opcode);
+  fetch_callback(opcode);
+  match match_memory_trigger_before(cur_privilege, TriggerFetchInstr(PC, opcode, width), inVirtualPrivilege()) {
+    Some(pti) => return Step_Fetch_Trigger(pti),
+    None()    => (),
+  };
+  let insn = if width == 6 then encdec48(truncate(opcode, 48)) else encdec64(zero_extend(opcode));
+  if get_config_print_instr() then
+    print_log_instr("[" ^ dec_str(step_no) ^ "] [" ^ to_str(cur_privilege) ^ "]: " ^
+                    bits_str(PC) ^ " (" ^ bits_str(opcode) ^ ") " ^ to_str(insn), zero_extend(PC));
+  let (executed_instruction, result) : (option(instruction), ExecutionResult) =
+    if is_landing_pad_expected() then (None(), trap(make_landing_pad_exception()))
+    else {
+      nextPC = PC + to_bits(xlen, width);
+      match rv_t_execute(insn) {
+        ExecuteAs(other_inst) => (Some(other_inst), execute(other_inst)),
+        result => (Some(insn), result),
+      }
+    };
+  let instr_info = struct instr_info {
+    fetch_privilege, fetch_trigger_reentrance, fetched_instruction = insn,
+    executed_instruction, instbits = zero_extend(64, opcode), compressed = false,
+  };
+  Step_Execute(result, instr_info)
+}
+
 private function run_hart_active(step_no: nat) -> Step = {
   // The Sdtrig extension does not define the priority of triggers
   // with respect to pending interrupts. See however:
@@ -189,6 +219,10 @@ private function run_hart_active(step_no: nat) -> Step = {
         Step_Execute(Illegal_Instruction(), instr_info)
       }
     },
+    F_Long48(w) =>
+      run_long_instruction(step_no, 6, w, fetch_privilege, fetch_trigger_reentrance),
+    F_Long64(w) =>
+      run_long_instruction(step_no, 8, w, fetch_privilege, fetch_trigger_reentrance),
     F_Base(w) => {
       sail_instr_announce(w);
       fetch_callback(w);
@@ -328,9 +362,9 @@ function try_step(step_no : nat, exit_wait : bool) -> bool = {
       set_next_pc(exception_handler(priv, ctx, pc))
     },
     Step_Execute(Illegal_Instruction(), instr_info) =>
-      handle_exception(make_instr_exception_context(E_Illegal_Instr(), zero_extend(instr_info.instbits))),
+      handle_exception(make_instr_exception_context(E_Illegal_Instr(), truncate(instr_info.instbits, xlen))),
     Step_Execute(Virtual_Instruction(), instr_info) =>
-      handle_exception(make_instr_exception_context(E_Virtual_Instr(), zero_extend(instr_info.instbits))),
+      handle_exception(make_instr_exception_context(E_Virtual_Instr(), truncate(instr_info.instbits, xlen))),
     Step_Execute(Enter_Wait(wr), instr_info) => {
       if wait_is_nop(wr) then {
         // This is the same as the RETIRE_OK case.

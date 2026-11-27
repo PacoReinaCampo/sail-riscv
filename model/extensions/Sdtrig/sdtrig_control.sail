@@ -282,7 +282,7 @@ private function compare_address forall 'width, 0 < 'width <= max_mem_access. (
   if is_none(match_val) then Some(addr) else None()
 }
 
-private function compare_value forall 'width, is_mem_width_wide('width) . (
+private function compare_value forall 'width, is_mem_width_wide('width) | 'width == 6 . (
   t_match : Trig_Match,
   t_size  : Trig_Match_Size,
   value   : bits(8 * 'width),

@@ -53,3 +53,10 @@ mapping y_nfields_pow2_string : y_nfields_pow2 <-> string = {
 
 let y_illegal_ytype_reserved_behavior : IllegalVtypeReservedBehavior = config extensions.Y.reserved_behavior.illegal_vtype
 let y_ystart_reserved_behavior : OOBVstartReservedBehavior = config extensions.Y.reserved_behavior.vstart_out_of_bounds
+
+enum zyk_ysha2_funct6 = {XYK_ZYK_YSHA2CH_YY, XYK_ZYK_YSHA2CL_YY}
+enum zyk_ysm4r_funct6 = {XYK_ZYK_YSM4R_YY, XYK_ZYK_YSM4R_YS}
+enum zyk_yaesdf_funct6 = {XYK_ZYK_YAESDF_YY, XYK_ZYK_YAESDF_YS}
+enum zyk_yaesdm_funct6 = {XYK_ZYK_YAESDM_YY, XYK_ZYK_YAESDM_YS}
+enum zyk_yaesef_funct6 = {XYK_ZYK_YAESEF_YY, XYK_ZYK_YAESEF_YS}
+enum zyk_yaesem_funct6 = {XYK_ZYK_YAESEM_YY, XYK_ZYK_YAESEM_YS}

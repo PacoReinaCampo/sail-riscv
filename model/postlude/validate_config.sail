@@ -1188,9 +1188,9 @@ private function check_extension_param_constraints() -> bool = {
       print_endline("`base.writable_fiom` is false but Sv32 is supported: FIOM may only be read-only zero when satp.MODE is always Bare.");
     }
   };
-  if not(config extensions.H.hedeleg_zero_writable : bool) & (config extensions.H.supported : bool) & not(config extensions.Zca.supported : bool) then {
+  if not(config extensions.H.hedeleg_zero_writable : bool) & (config extensions.H.supported : bool) & not(hartSupports(Ext_Zca) | long_instructions_supported()) then {
     valid = false;
-    print_endline("extensions.H.hedeleg_zero_writable is false but IALIGN=32 (Zca is disabled): hedeleg[0] must be writable when IALIGN=32.")
+    print_endline("extensions.H.hedeleg_zero_writable is false but IALIGN=32: hedeleg[0] must be writable when IALIGN=32.")
   };
 
   valid
@@ -1353,6 +1353,10 @@ private function check_platform_constraints() -> bool =
   validate_event_selectors()
 
 private function check_algebra_config() -> bool = {
+  if long_instructions_supported() & get_config_rvfi() then {
+    print_endline("The RVFI-DII input packet supports instructions up to 32 bits.");
+    return false;
+  };
   // Rectangular instruction views must fit within the maximum element group.
   if w_columns > wlen | y_columns * y_depth > ylen then {
     print_endline("W/Y view extents exceed the bank's maximum element capacity.");
